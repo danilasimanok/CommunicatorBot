@@ -44,20 +44,26 @@ class Wrapper:
 class IBot:
 	
 	def __init__(self, token, settings_wrapper, managers_answers_wrapper):
+		#Пока что токены были везде нужны: с их помощью получаем доступ к api
 		self.token = token
+		#wrapper-ы нужны для потокобезопасного изменения настроек и ответов менеджеров
 		self.settings_wrapper = settings_wrapper
 		self.managers_answers_wrapper = managers_answers_wrapper
 	
 	def polling(self):
+		'''После вызова этой функции бот начинает слушать входящие сообщения.'''
 		pass
 		
 	def stop(self):
+		'''Останавливает бота.'''
 		pass
 	
 	def send_message(self, user_id, msg, keyboard = None):
+		'''Посылает сообщение.'''
 		pass
 	
 	def process_message(self, message):
+		'''Работает с входящими сообщениями.'''
 		if self.settings_wrapper.payload == None:
 			self.send_message(message['user_id'], message['body'])
 			return
@@ -124,4 +130,5 @@ class IBot:
 				#type = notification
 		
 		def send(self, manager_id, notification, settings_wrapper):
+			'''Отправляет уведомление.'''
 			pass

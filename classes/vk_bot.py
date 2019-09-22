@@ -8,9 +8,11 @@ from random import randint
 
 class VK_Bot(IBot):
 	
+	#Минимальное и максимальное значения для long int. Нужны для выбора случайного числа при отправке сообщений через vkapi
 	MIN = -9223372036854775808
 	MAX = 9223372036854775807
 	
+	#JSON-строки, представляющие клавиатуры.
 	notification_keyboard = '''{
 	"one_time" : true,
 	"buttons" : [
@@ -52,9 +54,12 @@ class VK_Bot(IBot):
 	
 	def __init__(self, token, group_id, version, settings_wrapper, managers_answers_wrapper):
 		IBot.__init__(self, token, settings_wrapper, managers_answers_wrapper)
+		#Версия vkapi нужна при каждом к нему обращении. 
 		self.version = version
+		#Эти поля нужны для создания и обращения к vkapi соответственно.
 		self.session = vk.Session(access_token = self.token)
 		self.vk_api = vk.API(self.session)
+		#data содержит ответы от LongPoll-сервера
 		self.data = self.vk_api.groups.getLongPollServer(group_id = group_id, v = version)
 		self.is_polling = False
 	
@@ -85,7 +90,6 @@ class VK_Bot(IBot):
 			logging.error("Timeout occurred")
 	
 	def send(self, manager_id, notification, settings_wrapper):
-		'''Отправляет уведомление.'''
 		self.send_message(int(manager_id), notification, keyboard = VK_Bot.notification_keyboard)
 		#type = notification
 		settings_wrapper.lock.acquire()
