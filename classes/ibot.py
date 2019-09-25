@@ -62,6 +62,10 @@ class IBot:
 		'''Посылает сообщение.'''
 		pass
 	
+	def send_error_message(self, user_id, msg):
+		'''Посылает сообщение об ошибке.'''
+		pass
+	
 	def process_message(self, message):
 		'''Работает с входящими сообщениями.'''
 		if self.settings_wrapper.payload == None:
@@ -98,7 +102,7 @@ class IBot:
 					err, text, price, duration = parse_manager_answer(message['body'])
 					if err != None:
 						msg = f'Ошибка ввода! {err}'
-						self.send_message(message['user_id'], msg, keyboard = VK_Bot.error_keyboard)
+						self.send_error_message(message['user_id'], msg)
 						#type = error
 						self.settings_wrapper.lock.acquire()
 						self.settings_wrapper.payload['managers'][user_id]['latest_msg_type'] = 'error'

@@ -3,7 +3,7 @@ import vk
 import requests
 import logging
 
-from ibot import *
+from .ibot import *
 from random import randint
 
 class VK_Bot(IBot):
@@ -88,6 +88,9 @@ class VK_Bot(IBot):
 				self.vk_api.messages.send(user_id = user_id, random_id = randint(VK_Bot.MIN, VK_Bot.MAX), peer_id = user_id, message = msg, keyboard = keyboard, v = self.version)
 		except requests.exceptions.Timeout:
 			logging.error("Timeout occurred")
+	
+	def send_error_message(self, user_id, msg):
+		self.send_message(user_id, msg, keyboard = VK_Bot.error_keyboard)
 	
 	def send(self, manager_id, notification, settings_wrapper):
 		self.send_message(int(manager_id), notification, keyboard = VK_Bot.notification_keyboard)
