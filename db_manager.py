@@ -11,7 +11,7 @@ class DatabaseManager:
 	def get_unanswered_requests(self):
 		'''Возвращает список необработанных заявок.'''
 		c = self.database.cursor()
-		c.execute('SELECT * FROM tasks WHERE task_status = 0')
+		c.execute('SELECT task_id, task_dt_created, task_dt_added, exchange_id, task_category_id, task_link, task_text, task_price, task_name, task_status, task_dt_done FROM tasks WHERE task_status = 0')
 		result = []
 		task_fields = ['id', 'dt_created', 'dt_added', 'exchange_id', 'category_id', 'link', 'text', 'price', 'name', 'status', 'dt_done']
 		for task in c.fetchall():

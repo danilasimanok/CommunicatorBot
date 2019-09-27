@@ -58,6 +58,12 @@ class Program:
 	def mainloop(self, bot, dbm, settings_wrapper, managers_answers_wrapper, l):
 		self.running = True
 		while self.running:
+			managers_answers_wrapper.lock.acquire()
+			dbm.answer(managers_answers_wrapper.payload)
+			managers_answers_wrapper.payload = {1 : [], 2 : [], 3 : []}
+			managers_answers_wrapper.lock.release()
+			logging.debug('Ответы зваписаны.')
+			
 			unanswered_requests = dbm.get_unanswered_requests()
 			send_notifications(bot, settings_wrapper, settings_wrapper.payload['managers'].keys(), unanswered_requests)
 			unanswered_requests_count = len(unanswered_requests)
