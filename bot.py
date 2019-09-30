@@ -38,16 +38,19 @@ def get_latest_task(tasks, *selection_function_args):
 	return result
 
 def send_notifications(bot, settings_wrapper, managers, unanswered_requests, prev_unanswered_requests_count):
-	'''Отправляет уведомления манагерам.'''
+	'''Отправляет уведомления манагерам. Вернет, было ли послано хоть одно уведомление.'''
+	result = False
 	for manager_id in managers:
-		if notification_should_be_sent(unanswered_requests, len(unanswered_requests), prev_unanswered_requests_count):
+		send = notification_should_be_sent(unanswered_requests, len(unanswered_requests), prev_unanswered_requests_count)
+		if send:
 			send_notification(bot, settings_wrapper, manager_id, unanswered_requests, get_latest_task)
+		result = result or send
+	return result
 
 def notification_should_be_sent(tasks, *condition_function_args):
 	'''Определяет, должно ли быть отправлено уведомление.'''
 	unanswered_requests_count = condition_function_args[0]
 	prev_unanswered_requests_count = condition_function_args[1]
-	#result = (program.prev_unanswered_requests_count == 0 and unanswered_requests_count > 0)
 	return (unanswered_requests_count > 0 and prev_unanswered_requests_count == 0) or (unanswered_requests_count - prev_unanswered_requests_count > 30) or (unanswered_requests_count - prev_unanswered_requests_count < 0)
 
 class Program:
@@ -66,8 +69,9 @@ class Program:
 			logging.debug('Ответы зваписаны.')
 			
 			unanswered_requests = dbm.get_unanswered_requests()
-			send_notifications(bot, settings_wrapper, settings_wrapper.payload['managers'].keys(), unanswered_requests, self.prev_unanswered_requests_count)
-			self.prev_unanswered_requests_count = len(unanswered_requests)
+			send = send_notifications(bot, settings_wrapper, settings_wrapper.payload['managers'].keys(), unanswered_requests, self.prev_unanswered_requests_count)
+			if send:
+				self.prev_unanswered_requests_count = len(unanswered_requests)
 			logging.debug('Уведомления посланы.')
 			
 			settings_wrapper.lock.acquire()
