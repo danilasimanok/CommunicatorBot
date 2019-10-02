@@ -13,6 +13,9 @@ TOKEN = 'a714dbee700ea3d57d80a4715e89bed2a2e4d084822483f096bb742f802d81819c59720
 ID = '186543615'
 VERSION = 5.101
 
+if len(sys.argv) > 3:
+	logging.basicConfig(filename = sys.argv[3], level = logging.DEBUG)
+
 def send_notification(bot, settings_wrapper, manager_id, tasks, selection_function, *selection_function_args):
 	'''Отправляет менеджеру уведомление о задаче, на которую указала функция выбора.'''
 	selected_task = selection_function(tasks, selection_function_args)
@@ -63,21 +66,23 @@ class Program:
 		self.running = True
 		while self.running:
 			managers_answers_wrapper.lock.acquire()
+			logging.debug('Ответы менеджеров: ' + str(managers_answers_wrapper.payload))
 			dbm.answer(managers_answers_wrapper.payload)
 			managers_answers_wrapper.payload = {1 : [], 2 : [], 3 : []}
 			managers_answers_wrapper.lock.release()
 			logging.debug('Ответы зваписаны.')
 			
-			unanswered_requests = dbm.get_unanswered_requests()
-			send = send_notifications(bot, settings_wrapper, settings_wrapper.payload['managers'].keys(), unanswered_requests, self.prev_unanswered_requests_count)
-			if send:
-				self.prev_unanswered_requests_count = len(unanswered_requests)
-			logging.debug('Уведомления посланы.')
-			
 			settings_wrapper.lock.acquire()
 			l.save()
 			settings_wrapper.lock.release()
 			logging.debug('Настройки сохранены.')
+			
+			unanswered_requests = dbm.get_unanswered_requests()
+			send = send_notifications(bot, settings_wrapper, settings_wrapper.payload['managers'].keys(), unanswered_requests, self.prev_unanswered_requests_count)
+			logging.debug('Сейча - ' + str(unanswered_requests) + '. Тогда - ' + str(self.prev_unanswered_requests_count) + '. send = ' + str(send))
+			if send:
+				self.prev_unanswered_requests_count = len(unanswered_requests)
+			logging.debug('Уведомления посланы.')
 			
 			sleep(5)
 	
@@ -93,8 +98,6 @@ if __name__ == '__main__':
 	managers_answers = {1 : [], 2 : [], 3 : []}
 	#managers_answers_lock = threading.Lock()
 	managers_answers_wrapper = Wrapper(managers_answers)
-	
-	unanswered_requests_count = 0
 	
 	bot = VK_Bot(TOKEN, ID, VERSION, settings_wrapper, managers_answers_wrapper)
 	

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import threading
+import logging
 
 def parse_manager_answer(text):
 	'''Возвращает ошибку в отклике менеджера, текст ответа, цену и продолжительность.'''
@@ -68,6 +69,7 @@ class IBot:
 	
 	def process_message(self, message):
 		'''Работает с входящими сообщениями.'''
+		logging.debug('Получено сообщение.')
 		if self.settings_wrapper.payload == None:
 			self.send_message(message['user_id'], message['body'])
 			return
@@ -132,6 +134,7 @@ class IBot:
 			elif self.settings_wrapper.payload['managers'][user_id]['latest_msg_type'] == 'error':
 				self.send(user_id, self.settings_wrapper.payload['managers'][user_id]['latest_notification'], self.settings_wrapper)
 				#type = notification
+			#logging.debug('msq type после работы с сообщением - ' + self.settings_wrapper.payload['managers'][user_id]['latest_msg_type'])
 		
 		def send(self, manager_id, notification, settings_wrapper):
 			'''Отправляет уведомление.'''
